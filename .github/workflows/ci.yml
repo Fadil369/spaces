@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - copilot/add-copilot-space-instructions
+  pull_request:
+    branches:
+      - copilot/add-copilot-space-instructions
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate documentation files
+        run: |
+          echo "Validating markdown files..."
+          # Check if all markdown files exist
+          for file in README.md CONTRIBUTING.md; do
+            if [ -f "$file" ]; then
+              echo "✓ $file exists"
+            else
+              echo "✗ $file missing"
+              exit 1
+            fi
+          done
+
+      - name: Check documentation structure
+        run: |
+          echo "Checking documentation structure..."
+          # Verify docs directory exists
+          if [ -d "docs" ]; then
+            echo "✓ docs directory exists"
+          else
+            echo "✗ docs directory missing"
+            exit 1
+          fi
+          
+          # Verify key documentation files
+          for file in docs/COPILOT_SPACE_INSTRUCTIONS.md docs/PROJECT_MANAGEMENT.md; do
+            if [ -f "$file" ]; then
+              echo "✓ $file exists"
+            else
+              echo "✗ $file missing"
+              exit 1
+            fi
+          done
+
+      - name: Check issue templates
+        run: |
+          echo "Checking issue templates..."
+          if [ -d ".github/ISSUE_TEMPLATE" ]; then
+            echo "✓ Issue templates directory exists"
+            template_count=$(find .github/ISSUE_TEMPLATE -name "*.md" | wc -l)
+            echo "Found $template_count issue templates"
+            if [ "$template_count" -gt 0 ]; then
+              echo "✓ Issue templates present"
+            else
+              echo "✗ No issue templates found"
+              exit 1
+            fi
+          else
+            echo "✗ Issue templates directory missing"
+            exit 1
+          fi
+
+      - name: Run a sample script
+        run: echo "Hello, workflow is set up!"
